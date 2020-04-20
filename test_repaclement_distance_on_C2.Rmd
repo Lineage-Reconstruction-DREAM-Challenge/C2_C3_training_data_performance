@@ -1,0 +1,60 @@
+---
+title: 'Running k-mer replacement distance on C2 training data'
+output: rmarkdown::github_document
+date: '4/19/2020'
+author: 'Wuming Gong'
+---
+
+```{r, message = FALSE}
+library(BiocParallel)
+register(MulticoreParam(8)) # Use 8 cores
+library(treeman)	# for calcDstTrp
+library(ape)
+options(width = as.integer(system('tput cols', intern = TRUE)))
+devtools::load_all('../DCLEAR')	# the development branch
+```
+
+## Load the Challenge 2 lineage data and summarize 2-mers
+The k-mer summary results are stored for later use. 
+```{r}
+data(lineages)
+set.seed(1)
+ks_files <- sprintf('data/C2/i=%d_reps=1000_division=16L.rds', 1:length(lineages))
+for (i in 1:length(lineages)){
+	x <- lineages[[i]]$sequence
+	y <- lineages[[i]]$tree
+	ks <- x %>% summarize_kmer(reps = 1000L, division = 16L)
+	flog.info(sprintf('writing %s', ks_files[i]))
+	saveRDS(ks, file = ks_files[i])
+}
+```
+
+## Compute the RF distance and triplet metric of predicted trees and ground truth trees
+```{r}
+res <- do.call('rbind', bplapply(1:length(lineages), function(i){
+
+	flog.info(sprintf('%d/%d', i, length(lineages)))
+
+	x <- lineages[[i]]$sequence
+	y <- lineages[[i]]$tree
+	ks <- readRDS(ks_files[[i]])	# kmer summaray
+	d <- x %>% dist_replacement(kmer_summary = ks, k = 2)
+
+	y_pred <- d %>% fastme.bal() 	# inferred tree
+
+	rf <- RF.dist(y, y_pred, normalize = TRUE)	# RF distance
+
+	triplet <- calcDstTrp(
+		readTree(text = write.tree(y)),
+		readTree(text = write.tree(y_pred)),
+		nrmlsd = TRUE
+	)	# triplet metric (slow)
+
+	data.frame(sample = i, rf = rf, triplet)
+
+}))
+
+res_file <- 'challenge=C2_group=Kwak_Gong.tsv'
+write.table(res, res_file, sep = '\t', quote = FALSE, row.names = FALSE)
+
+```
