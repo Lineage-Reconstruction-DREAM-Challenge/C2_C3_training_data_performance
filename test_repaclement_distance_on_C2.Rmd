@@ -1,7 +1,7 @@
 ---
 title: 'Running k-mer replacement distance on C2 training data'
 output: rmarkdown::github_document
-date: '4/19/2020'
+date: '4/26/2020'
 author: 'Wuming Gong'
 ---
 
@@ -29,7 +29,7 @@ for (i in 1:length(lineages)){
 }
 ```
 
-## Compute the RF distance and triplet metric of predicted trees and ground truth trees
+## Compute the RF distance and triplet metric of predicted trees and ground truth trees using R ape and treeman
 ```{r}
 res <- do.call('rbind', bplapply(1:length(lineages), function(i){
 
@@ -58,3 +58,44 @@ res_file <- 'challenge=C2_group=Kwak_Gong.tsv'
 write.table(res, res_file, sep = '\t', quote = FALSE, row.names = FALSE)
 
 ```
+
+## Compute the RF distance and triplet metric of predicted trees and ground truth trees using TreeCmp
+TreeCmp (version 1.0-b291) is used. 
+```{r}
+true_tree_files <- sprintf('data/C2/sample=%d.true.newick', 1:length(lineages))
+pred_tree_files <- sprintf('data/C2/sample=%d.pred.newick', 1:length(lineages))
+treecmp_output_files <- sprintf('data/C2/sample=%d.treecmp.txt', 1:length(lineages))
+
+res <- do.call('rbind', bplapply(1:length(lineages), function(i){
+
+  flog.info(sprintf('%d/%d', i, length(lineages)))
+
+	  x <- lineages[[i]]$sequence
+		y <- lineages[[i]]$tree
+	  ks <- readRDS(ks_files[[i]])  # kmer summaray
+	  d <- x %>% dist_replacement(kmer_summary = ks, k = 2)
+
+	  y_pred <- d %>% fastme.bal()  # inferred tree
+
+	  write.tree(y, true_tree_files[i])
+	  write.tree(y_pred, pred_tree_files[i])
+
+	  command <- sprintf('java -jar TreeCmp/bin/TreeCmp.jar -P -N -I -r %s -i %s -o %s -d rc rf tt', true_tree_files[i], pred_tree_files[i], treecmp_output_files[i])
+	  system(command)
+
+	  row <- read.table(treecmp_output_files[i], header = TRUE, sep = '\t', nrow = 1) %>%
+			unlist()
+
+		n <- row['Common_taxa']
+		rf_score <- row['R.F'] / (n - 3)
+		triples <- row['Triples']
+		triples_score <- min(1.0, 3 * triples / (2 * choose(n, 3)))
+
+		data.frame(sample = i, rf = rf_score, triplet = triples_score)
+
+}))
+
+res_file <- 'challenge=C2_group=Kwak_Gong.v2.tsv'
+write.table(res, res_file, sep = '\t', quote = FALSE, row.names = FALSE)
+```
+
