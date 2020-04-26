@@ -12,4 +12,6 @@ For the performance on the Challenge 2 training data,  please upload a tab-delim
 Script for computing the RF distance and triplet distance between groud truth tree and predicted tree: 
 https://github.com/Sage-Bionetworks/Allen-DREAM-Challenge/blob/master/Docker/score.py
 
+Example notebook for computing RF distance and triplet distance using TreeCmp: https://github.com/ofirr/dream_examples/blob/master/treecmp_comparison_example.ipynb
+
 I will combine the results from each group, and make a final boxplot to show the performance.  
