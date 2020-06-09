@@ -10,6 +10,7 @@ For the performance on the Challenge 2 training data,  please upload a tab-delim
 * Jingyuan: [challenge=C2_group=Jingyuan_Hu.tsv](challenge=C2_group=Jingyuan_Hu.tsv)
 * Weighted hamming (Kwak_Gong): [challenge=C2_group=Kwak_gong_weighted_hamming_TreeCmp.tsv](challenge=C2_group=Kwak_gong_weighted_hamming_TreeCmp.tsv)
 * Yosef Lab: [challenge=C2_group=MJ.tsv](challenge=C2_group=MJ.tsv)
+* Renata's method: [challenge=C2_group=AMbeRland.tsv](challenge=C2_group=AMbeRland.tsv)
 
 Script for computing the RF distance and triplet distance between groud truth tree and predicted tree: 
 https://github.com/Sage-Bionetworks/Allen-DREAM-Challenge/blob/master/Docker/score.py
