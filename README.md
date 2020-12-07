@@ -16,6 +16,8 @@ https://github.com/Sage-Bionetworks/Allen-DREAM-Challenge/blob/master/Docker/sco
 
 Example notebook for computing RF distance and triplet distance using TreeCmp: https://github.com/ofirr/dream_examples/blob/master/treecmp_comparison_example.ipynb
 
+Notebook for comparing the performance on Challenge 2 training data: [compare_performance_on_C2_training_data.ipynb](compare_performance_on_C2_training_data.ipynb). 
+
 ### Benchmarking running time 
 Each method will be tested on one randomly generated dataset of [1,000 cells with 200 targets](https://s3.msi.umn.edu/gongx030/rlib/C2_C3_training_data_performance/C2_test.tsv), and one dataset of [2,500 cells with 1,000 targets](https://s3.msi.umn.edu/gongx030/rlib/C2_C3_training_data_performance/C3_test.tsv). 
 
